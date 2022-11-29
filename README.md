@@ -1,2 +1,2 @@
 # flowervase
-An homomorphically encrypted voting machine.
+A homomorphically encrypted voting machine.
