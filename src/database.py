@@ -22,7 +22,7 @@ def candidates():
 
 
 def retrieve_votes():
-    query = 'SELECT candidateID, c.name, COUNT(candidateID) FROM Vote GROUP BY candidateID'
+    query = 'SELECT c.name, COUNT(v.candidateID) FROM Candidate c NATURAL JOIN Vote v GROUP BY candidateID'
     cursor = connector.cursor()
     cursor.execute(query)
 
