@@ -7,7 +7,7 @@ CREATE TABLE Candidate(
 );
 
 CREATE TABLE Vote(
-    CPF INT(11) UNIQUE NOT NULL,
+    CPF BIGINT UNIQUE NOT NULL,
     candidateID INT NOT NULL,
 
     PRIMARY KEY (CPF, candidateID),
