@@ -6,27 +6,36 @@ connector = mysql.connector.connect(host='localhost', database='registry', user=
 
 
 def vote(cpf, candidate):
-    sql = f'INSERT INTO Vote (CPF, candidateID) VALUES ({cpf}, {candidate});'
+    query = f'INSERT INTO Vote (CPF, candidateID) VALUES ({cpf}, {candidate});'
     cursor = connector.cursor()
-    cursor.execute(sql)
+    cursor.execute(query)
     connector.commit()
 
 
 def candidates():
-    sql = f'SELECT * FROM Candidate'
+    query = f'SELECT * FROM Candidate'
     cursor = connector.cursor()
-    cursor.execute(sql)
+    cursor.execute(query)
+
+    result = [result for result in cursor]
+    return result
+
+
+def retrieve_votes():
+    query = 'SELECT candidateID, c.name, COUNT(candidateID) FROM Vote GROUP BY candidateID'
+    cursor = connector.cursor()
+    cursor.execute(query)
 
     result = [result for result in cursor]
     return result
 
 
 def vote_from(voter_cpf) -> str:
-    sql = f"""SELECT c.name 
+    query = f"""SELECT c.name 
               FROM Candidate c 
               WHERE c.candidateID = (SELECT v.candidateID FROM Vote v WHERE v.CPF = {voter_cpf});"""
     cursor = connector.cursor()
-    cursor.execute(sql)
+    cursor.execute(query)
 
     result = [result for result in cursor]  # Retrieves possible results from the cursor.
     result = result.pop()  # Gets the first item, at position 0, which will be a tuple.
@@ -35,4 +44,4 @@ def vote_from(voter_cpf) -> str:
 
 
 if __name__ == '__main__':
-    print(candidates())
+    print(retrieve_votes())
