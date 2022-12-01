@@ -1,4 +1,4 @@
-from database import candidates, vote
+from src.database import candidates, vote
 from tabulate import tabulate
 
 
