@@ -3,9 +3,9 @@ from phe.paillier import PaillierPrivateKey, generate_paillier_keypair
 from __init__ import resource_dir
 
 
-def store(key: PaillierPrivateKey, filename):
+def store(private_key: PaillierPrivateKey, filename):
     with open(resource_dir / filename, 'wb') as f:
-        dump(key, f)
+        dump(private_key, f)
 
 
 def private_key_from(filename):
