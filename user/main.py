@@ -1,12 +1,17 @@
-from src.database import candidates, vote
+from src.database import vote, unvote
+from admin.database import candidates
 from tabulate import tabulate
 from phe.paillier import generate_paillier_keypair
 import src.key_store as key_store
-from src.crypto import encrypt, decrypt
 
 
 if __name__ == '__main__':
-    print('Welcome. What would you like to do?\n')
+    print('Welcome.\n')
+
+    print('Identify yourself. Please type your CPF. ')
+    cpf = int(input('? '))
+
+    print('What would you like to do?\n')
 
     while True:
         options = ((0, 'Vote'), (1, 'Unvote'), (2, 'Exit'))
@@ -21,9 +26,9 @@ if __name__ == '__main__':
                 print(tabulate(table, headers=['ID', 'Name', 'Party']))
                 print()
 
-                cpf = int(input('Please type your CPF: '))
-
-                candidate_id = int(input('Please type the desired candidate number: '))
+                print('Please type the desired candidate number.')
+                candidate_id = int(input('? '))
+                print()
 
                 print('A key pair will be generated to testify the existence of your vote.\n')
 
@@ -38,9 +43,17 @@ if __name__ == '__main__':
 
                 vote(cpf, candidate_id, public_key)
 
-                print('Vote confirmed')
+                print('Vote confirmed.\n')
             case 1:
-                pass
+                filename = '{}.txt'.format(cpf)
+                private_key = key_store.private_key_from(filename)
+
+                vote = unvote(cpf, private_key)
+
+                if vote:
+                    print('You have voted for {} of {}'.format(vote[0], vote[1]))
+                else:
+                    print('You did not vote yet.')
             case 2:
                 print('Have a good day.')
                 exit(0)
