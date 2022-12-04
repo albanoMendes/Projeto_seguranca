@@ -130,3 +130,6 @@ dmypy.json
 
 # PyCharm's .IDEA folder
 .idea/
+
+resources/*
+!resources/stub_pv_key.txt
