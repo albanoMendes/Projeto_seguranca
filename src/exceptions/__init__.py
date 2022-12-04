@@ -1,2 +1,0 @@
-class ExistentVoteException(Exception):
-    pass
