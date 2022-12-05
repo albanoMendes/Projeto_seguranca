@@ -1,47 +1,77 @@
 import mysql.connector
 import mysql.connector.cursor
-
+from phe import PaillierPublicKey, PaillierPrivateKey
+from src.crypto import encrypt, decrypt
+from src.key_store import private_key_from
+from admin.keystore import admin_pub_key, admin_priv_key
 
 connector = mysql.connector.connect(host='localhost', database='registry', user='root', password='password')
+cursor = connector.cursor()
 
 
-def vote(cpf, candidate):
-    query = f'INSERT INTO Vote (CPF, candidateID) VALUES ({cpf}, {candidate});'
-    cursor = connector.cursor()
+def vote(cpf: int, candidate: int, public_key: PaillierPublicKey):
+    user_vote = encrypt(candidate, public_key)
+    user_vote = str(user_vote)
+
+    query = 'INSERT INTO UserVote (CPF, encriptedCandidateID) VALUES ({}, {!a});'.format(cpf, user_vote)
     cursor.execute(query)
+
+    query = 'SELECT votes FROM UrnVote WHERE candidateID = {}'.format(candidate)
+    cursor.execute(query)
+
+    votes: tuple = cursor.fetchone()  # As a list of tuples...
+    votes: str = votes[0]  # ... And from the tuple, we get...
+    votes: bytes = eval(votes)  # The first element, which are the votes.
+
+    if votes != 0:
+        votes: int = decrypt(votes, admin_priv_key)
+
+    votes += 1
+    votes: bytes = encrypt(votes, admin_pub_key)
+    votes: str = str(votes)
+
+    query = 'UPDATE UrnVote SET votes = {!a} WHERE candidateID = {}'.format(votes, candidate)
+    cursor.execute(query)
+
     connector.commit()
 
 
-def candidates():
-    query = f'SELECT * FROM Candidate'
-    cursor = connector.cursor()
+def unvote(voter_cpf: int, private_key: PaillierPrivateKey) -> tuple:
+    query = 'SELECT encriptedCandidateID FROM UserVote WHERE CPF = {};'.format(voter_cpf)
     cursor.execute(query)
 
-    result = [result for result in cursor]
+    candidate: tuple = cursor.fetchone()
+
+    if not candidate:
+        return tuple()
+
+    candidate: str = candidate[0]
+    candidate: bytes = eval(candidate)
+    candidate: int = decrypt(candidate, private_key)
+
+    query = 'SELECT votes FROM UrnVote WHERE candidateID = {}'.format(candidate)
+    cursor.execute(query)
+
+    votes: tuple = cursor.fetchone()  # As a list of tuples...
+    votes: str = votes[0]  # ... And from the tuple, we get...
+    votes: bytes = eval(votes)  # The first element, which are the votes.
+    votes: int = decrypt(votes, admin_priv_key)
+    votes -= 1
+    votes: bytes = encrypt(votes, admin_pub_key)
+    votes: str = str(votes)
+
+    query = 'UPDATE UrnVote SET votes = {!a} WHERE candidateID = {}'.format(votes, candidate)
+    cursor.execute(query)
+
+    connector.commit()
+
+    query = 'SELECT name, party FROM Candidate WHERE candidateID = {}'.format(candidate)
+    cursor.execute(query)
+
+    result = cursor.fetchone()
     return result
-
-
-def retrieve_votes():
-    query = 'SELECT c.name, COUNT(v.candidateID) FROM Candidate c NATURAL JOIN Vote v GROUP BY candidateID'
-    cursor = connector.cursor()
-    cursor.execute(query)
-
-    result = [result for result in cursor]
-    return result
-
-
-def vote_from(voter_cpf) -> str:
-    query = f"""SELECT c.name 
-              FROM Candidate c 
-              WHERE c.candidateID = (SELECT v.candidateID FROM Vote v WHERE v.CPF = {voter_cpf});"""
-    cursor = connector.cursor()
-    cursor.execute(query)
-
-    result = [result for result in cursor]  # Retrieves possible results from the cursor.
-    result = result.pop()  # Gets the first item, at position 0, which will be a tuple.
-
-    return result[0]  # Returns the first position of the tuple - the candidate's name.
 
 
 if __name__ == '__main__':
-    print(retrieve_votes())
+    key = private_key_from('1.txt')
+    unvote(1, key)
