@@ -136,4 +136,4 @@ resources/*
 !resources/stub_pv_key.txt
 
 # Admin keyring to be generated during first execution
-admin/keyring
+keyring
