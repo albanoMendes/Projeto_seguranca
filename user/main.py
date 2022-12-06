@@ -1,4 +1,4 @@
-from src.database import vote, unvote
+from src.database import vote, unvote, insert_data
 from admin.database import candidates
 from tabulate import tabulate
 from phe.paillier import generate_paillier_keypair
@@ -6,6 +6,7 @@ import src.key_store as key_store
 
 
 if __name__ == '__main__':
+    # insert_data()
     print('Welcome.\n')
 
     print('Identify yourself. Please type your CPF. ')
@@ -51,7 +52,7 @@ if __name__ == '__main__':
                 vote = unvote(cpf, private_key)
 
                 if vote:
-                    print('You have voted for {} of {}\n'.format(vote[0], vote[1]))
+                    print('You have voted for {} of {}\n'.format(vote["name"], vote["party"]))
                 else:
                     print('You did not vote yet.\n')
             case 2:
