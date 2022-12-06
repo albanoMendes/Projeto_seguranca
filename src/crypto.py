@@ -1,12 +1,10 @@
 from phe import PaillierPublicKey, PaillierPrivateKey
-from pickle import dumps, loads
+from phe.paillier import EncryptedNumber
 
 
-def encrypt(vote: int, public_key: PaillierPublicKey) -> bytes:
-    vote = public_key.encrypt(vote)
-    return dumps(vote)
+def encrypt(vote: int, public_key: PaillierPublicKey) -> EncryptedNumber:
+    return public_key.encrypt(vote)
 
 
-def decrypt(vote: bytes, private_key: PaillierPrivateKey) -> int:
-    vote = loads(vote)
+def decrypt(vote: EncryptedNumber, private_key: PaillierPrivateKey) -> int:
     return private_key.decrypt(vote)
