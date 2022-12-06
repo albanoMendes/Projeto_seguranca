@@ -133,7 +133,6 @@ dmypy.json
 
 # All resources except the stub one
 resources/*
-!resources/stub_pv_key.txt
 
 # Admin keyring to be generated during first execution
 keyring
