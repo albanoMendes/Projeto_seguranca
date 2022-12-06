@@ -51,7 +51,7 @@ if __name__ == '__main__':
                 vote = unvote(cpf, private_key)
 
                 if vote:
-                    print('You have voted for {} of {}\n'.format(vote[0], vote[1]))
+                    print('You have voted for {} of {}\n'.format(vote["name"], vote["party"]))
                 else:
                     print('You did not vote yet.\n')
             case 2:
