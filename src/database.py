@@ -1,9 +1,9 @@
 from phe import PaillierPublicKey, PaillierPrivateKey
 from src.crypto import encrypt, decrypt
 from src.key_store import private_key_from
-from admin.keystore import admin_pub_key, admin_priv_key
+from admin.key_store import admin_pub_key
 from __init__ import resource_dir
-from src.dao import insert, get, remove, __dump
+from src.dao import insert, get, remove, dump
 from os.path import isfile
 
 
@@ -16,9 +16,9 @@ def insert_data():
     if isfile(candidatesFile) or isfile(userVotesFile) or isfile(urnVotesFile):
         return
 
-    __dump([], candidatesFile)
-    __dump([], userVotesFile)
-    __dump([], urnVotesFile)
+    dump([], candidatesFile)
+    dump([], userVotesFile)
+    dump([], urnVotesFile)
 
     insert({"candidateId": 0, "name": "Zé da Padaria", "party": "Padaria"},
            "candidateId",
@@ -45,15 +45,15 @@ def insert_data():
 
 def vote(cpf: int, candidate: int, public_key: PaillierPublicKey):
     user_vote = encrypt(candidate, public_key)
-    user_vote = user_vote
-    insert({"CPF": cpf, "encryptedCandidateID": user_vote}, "CPF", cpf, userVotesFile)
 
-    candidateVotes = get("candidateId", candidate, urnVotesFile)
-    encryptVotes = candidateVotes["votes"]
-    votes: int = decrypt(encryptVotes, admin_priv_key)
-    votes += 1
-    encryptVotes: bytes = encrypt(votes, admin_pub_key)
-    insert({"candidateId": candidate, "votes": encryptVotes}, "candidateId", candidate, urnVotesFile)
+    if insert({"CPF": cpf, "encryptedCandidateID": user_vote}, "CPF", cpf, userVotesFile):
+        candidateVotes = get("candidateId", candidate, urnVotesFile)
+        encryptVotes = candidateVotes["votes"]
+
+        insert({"candidateId": candidate, "votes": encryptVotes + 1}, "candidateId", candidate, urnVotesFile)
+        return 'Vote confirmed.\n'
+    else:
+        return 'You have already voted. Please, unvote first.\n'
 
 
 def unvote(voter_cpf: int, private_key: PaillierPrivateKey) -> tuple:
@@ -64,13 +64,10 @@ def unvote(voter_cpf: int, private_key: PaillierPrivateKey) -> tuple:
 
     candidateVotes = get("candidateId", candidate, urnVotesFile)
     encryptVotes = candidateVotes["votes"]
-    votes: int = decrypt(encryptVotes, admin_priv_key)
-    votes -= 1
-    encryptVotes: bytes = encrypt(votes, admin_pub_key)
-    insert({"candidateId": candidate, "votes": encryptVotes}, "candidateId", candidate, urnVotesFile)
 
-    candidateVoted = get("candidateId", candidate, candidatesFile)
-    return candidateVoted
+    insert({"candidateId": candidate, "votes": encryptVotes - 1}, "candidateId", candidate, urnVotesFile)
+
+    return get("candidateId", candidate, candidatesFile)
 
 
 if __name__ == '__main__':

@@ -42,9 +42,8 @@ if __name__ == '__main__':
 
                 key_store.store(private_key, filename)
 
-                vote(cpf, candidate_id, public_key)
-
-                print('Vote confirmed.\n')
+                result = vote(cpf, candidate_id, public_key)
+                print(result)
             case 1:
                 filename = '{}.txt'.format(cpf)
                 private_key = key_store.private_key_from(filename)
