@@ -4,6 +4,7 @@ from src.key_store import private_key_from
 from admin.keystore import admin_pub_key, admin_priv_key
 from __init__ import resource_dir
 from src.dao import insert, get, remove, __dump
+from os.path import isfile
 
 
 candidatesFile = resource_dir / "candidates.pkl"
@@ -11,12 +12,10 @@ userVotesFile = resource_dir / "userVotes.pkl"
 urnVotesFile = resource_dir / "urnVotes.pkl"
 
 
-# Candidate  = [{"candidateId": int, "name": str, "party": str}] | primaryKey = candidateId
-# UserVote = [{"CPF": str, "candidateId": str}] | primaryKey = CPF
-# UrnVote = [{"candidateId": int, "votes": str}] | primaryKey = candidateId
-
-
 def insert_data():
+    if isfile(candidatesFile) or isfile(userVotesFile) or isfile(urnVotesFile):
+        return
+
     __dump([], candidatesFile)
     __dump([], userVotesFile)
     __dump([], urnVotesFile)
