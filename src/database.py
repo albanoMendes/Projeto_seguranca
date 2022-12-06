@@ -12,7 +12,7 @@ urnVotesFile = resource_dir / "urnVotes.pkl"
 
 
 # Candidate  = [{"candidateId": int, "name": str, "party": str}] | primaryKey = candidateId
-# UserVote = [{"cpf": str, "candidateId": str}] | primaryKey = CPF
+# UserVote = [{"CPF": str, "candidateId": str}] | primaryKey = CPF
 # UrnVote = [{"candidateId": int, "votes": str}] | primaryKey = candidateId
 
 
@@ -46,7 +46,7 @@ def insert_data():
 
 def vote(cpf: int, candidate: int, public_key: PaillierPublicKey):
     user_vote = encrypt(candidate, public_key)
-    user_vote = str(user_vote)
+    user_vote = user_vote
     insert({"CPF": cpf, "encryptedCandidateID": user_vote}, "CPF", cpf, userVotesFile)
 
     candidateVotes = get("candidateId", candidate, urnVotesFile)
@@ -75,6 +75,5 @@ def unvote(voter_cpf: int, private_key: PaillierPrivateKey) -> tuple:
 
 
 if __name__ == '__main__':
-    insert_data()
     key = private_key_from('1.txt')
     unvote(1, key)

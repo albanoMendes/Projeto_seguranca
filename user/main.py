@@ -6,7 +6,7 @@ import src.key_store as key_store
 
 
 if __name__ == '__main__':
-    insert_data()
+    # insert_data()
     print('Welcome.\n')
 
     print('Identify yourself. Please type your CPF. ')

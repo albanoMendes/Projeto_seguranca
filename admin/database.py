@@ -20,17 +20,7 @@ def candidates():
 
 def count() -> dict:
     results = dict()
-
-    # query = 'SELECT * FROM UrnVote;'
-    # cursor.execute(query)
-    #
-    # registry: tuple = cursor.fetchall()
     registry = get_all(resource_dir / "urnVotes.pkl")
-    # for candidate in registry:
-    #     candidate_id, votes = candidate
-    #     votes: str = votes
-    #     votes: bytes = eval(votes)
-    #     votes: int = decrypt(votes, admin_priv_key)
     for candidate in registry:
         encryptedVotes = candidate["votes"]
         candidateId = candidate["candidateId"]
