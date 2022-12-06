@@ -1,15 +1,10 @@
 from src.dao import get_all
-# from src.database import cursor
 from src.crypto import decrypt
-from admin.keystore import admin_priv_key
+from admin.key_store import admin_priv_key
 from __init__ import resource_dir
 
 
 def candidates():
-    # query = 'SELECT * FROM Candidate;'
-    # cursor.execute(query)
-    #
-    # result = cursor.fetchall()
     candidatesList = get_all(resource_dir / "candidates.pkl")
     result = []
     for data in candidatesList:
