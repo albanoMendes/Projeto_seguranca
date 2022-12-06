@@ -17,27 +17,31 @@ def __load(filename):
 
 def insert(data, primaryKey, valuePrimaryKey, filename):
     object_cache = __load(filename)
-    inserted = False
-    for value in object_cache:
-        if value[primaryKey] == valuePrimaryKey:
-            value = data
-            inserted = True
-    if not inserted:
-        object_cache.append(data)
+    if object_cache:
+        for value in object_cache:
+            if value[primaryKey] == valuePrimaryKey:
+                remove(primaryKey, valuePrimaryKey, filename)
+    object_cache.append(data)
     __dump(object_cache, filename)
 
 
 def remove(primaryKey, valuePrimaryKey, filename):
     object_cache = __load(filename)
-    for data in object_cache:
-        if data[primaryKey] == valuePrimaryKey:
-            object_cache.remove(data)
+    if object_cache:
+        for data in object_cache:
+            if data[primaryKey] == valuePrimaryKey:
+                object_cache.remove(data)
     __dump(object_cache, filename)
 
 
 def get(primaryKey, valuePrimaryKey, filename):
     object_cache = __load(filename)
-    for data in object_cache:
-        if data[primaryKey] == valuePrimaryKey:
-            return data
+    if object_cache:
+        for data in object_cache:
+            if data[primaryKey] == valuePrimaryKey:
+                return data
     return None
+
+
+def get_all(filename):
+    return __load(filename)
