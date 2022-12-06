@@ -1,28 +1,29 @@
-from pickle import dump, load
+import pickle
 from __init__ import resource_dir
 
 
-def __dump(data, filename):
+def dump(data, filename):
     with open(resource_dir / filename, 'wb') as f:
-        dump(data, f)
-        f.close()
+        pickle.dump(data, f)
 
 
 def __load(filename):
     with open(resource_dir / filename, 'rb') as f:
-        data = load(f)
-        f.close()
+        data = pickle.load(f)
         return data
 
 
 def insert(data, primaryKey, valuePrimaryKey, filename):
     object_cache = __load(filename)
+
     if object_cache:
         for value in object_cache:
             if value[primaryKey] == valuePrimaryKey:
-                remove(primaryKey, valuePrimaryKey, filename)
+                return False
+
     object_cache.append(data)
-    __dump(object_cache, filename)
+    dump(object_cache, filename)
+    return True
 
 
 def remove(primaryKey, valuePrimaryKey, filename):
@@ -31,7 +32,7 @@ def remove(primaryKey, valuePrimaryKey, filename):
         for data in object_cache:
             if data[primaryKey] == valuePrimaryKey:
                 object_cache.remove(data)
-    __dump(object_cache, filename)
+    dump(object_cache, filename)
 
 
 def get(primaryKey, valuePrimaryKey, filename):
