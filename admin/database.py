@@ -1,27 +1,29 @@
-from src.dao import get_all
 from src.crypto import decrypt
+from src.dao import load
 from admin.key_store import admin_priv_key
-from __init__ import resource_dir
+from __init__ import candidates_file
 
 
 def candidates():
-    candidatesList = get_all(resource_dir / "candidates.pkl")
-    result = []
-    for data in candidatesList:
-        candidate = [data["candidateId"], data["name"], data["party"]]
-        result.append(candidate)
+    to_vote = load(candidates_file)
+    result = list()
+
+    for data in to_vote:
+        result.append((data['candidate_id'], data['name'], data['party']))
+
     return result
 
 
 def count() -> dict:
     results = dict()
-    registry = get_all(resource_dir / "urnVotes.pkl")
-    for candidate in registry:
-        encryptedVotes = candidate["votes"]
-        candidateId = candidate["candidateId"]
-        votes: int = decrypt(encryptedVotes, admin_priv_key)
+    registry = load(candidates_file)
 
-        results[candidateId] = votes
+    for candidate in registry:
+        encrypted_votes = candidate['votes']
+        candidate_id = candidate['candidate_id']
+        votes: int = decrypt(encrypted_votes, admin_priv_key)
+
+        results[candidate_id] = votes
 
     return results
 

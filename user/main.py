@@ -1,4 +1,4 @@
-from src.database import vote, unvote, insert_data
+from src.database import vote, unvote, urn
 from admin.database import candidates
 from tabulate import tabulate
 from phe.paillier import generate_paillier_keypair
@@ -6,7 +6,7 @@ import src.key_store as key_store
 
 
 if __name__ == '__main__':
-    insert_data()
+    urn()
     print('Welcome.\n')
 
     print('Identify yourself. Please type your CPF. ')
@@ -40,18 +40,20 @@ if __name__ == '__main__':
 
                 public_key, private_key = generate_paillier_keypair()
 
-                key_store.store(private_key, filename)
+                has_voted, result = vote(cpf, candidate_id, public_key)
 
-                result = vote(cpf, candidate_id, public_key)
+                if not has_voted:
+                    key_store.store(private_key, filename)
+
                 print(result)
             case 1:
                 filename = '{}.txt'.format(cpf)
                 private_key = key_store.private_key_from(filename)
 
-                vote = unvote(cpf, private_key)
+                vote: dict = unvote(cpf, private_key)
 
                 if vote:
-                    print('You have voted for {} of {}\n'.format(vote["name"], vote["party"]))
+                    print('You have voted for {} of {}\n'.format(vote['name'], vote['party']))
                 else:
                     print('You did not vote yet.\n')
             case 2:
